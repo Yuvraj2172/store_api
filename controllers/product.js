@@ -1,11 +1,12 @@
 const Product = require("../models/product");
 const getAllProductsStatic = async (req, res) => {
-  const products = await Product.find({}).select("name");
+  const products = await Product.find({}).skip(3).limit(2);
   res.status(200).json({ nHits: products.length, products });
 };
 
 const getAllProducts = async (req, res) => {
-  const { featured, company, name, rating, sort, fields } = req.query;
+  const { featured, company, name, rating, sort, fields, limit, skip } =
+    req.query;
   const queryObject = {};
   if (featured) {
     queryObject.featured = featured === "true" ? true : false;
@@ -29,6 +30,12 @@ const getAllProducts = async (req, res) => {
   if (fields) {
     let filter = fields.split(",").join(" ");
     result = result.select(filter);
+  }
+  if (skip) {
+    result = result.skip(skip);
+  }
+  if (limit) {
+    result = result.limit(limit);
   }
   const products = await result;
   res.status(200).json({ nHits: products.length, products });
